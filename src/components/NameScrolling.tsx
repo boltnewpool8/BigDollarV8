@@ -214,25 +214,25 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
                   <div className="text-4xl md:text-5xl font-bold text-white mb-4">
                     {currentWinner.name}
                   </div>
-                  <div className="text-2xl text-blue-200 mb-3">
+                  <div className="text-2xl text-white font-semibold mb-3">
                     {currentWinner.department}
                   </div>
-                  <div className="text-xl text-blue-300 mb-4">
+                  <div className="text-xl text-white font-medium mb-4">
                     Supervisor: {currentWinner.supervisor}
                   </div>
                   <div className="flex justify-center space-x-6 text-sm">
-                    <div className="bg-white/20 rounded-lg px-4 py-3">
-                      <span className="text-yellow-300 font-semibold">
+                    <div className="bg-yellow-500/80 rounded-lg px-4 py-3">
+                      <span className="text-white font-bold">
                         {currentWinner.totalTickets} tickets
                       </span>
                     </div>
-                    <div className="bg-white/20 rounded-lg px-4 py-3">
-                      <span className="text-green-300 font-semibold">
+                    <div className="bg-green-500/80 rounded-lg px-4 py-3">
+                      <span className="text-white font-bold">
                         NPS: {currentWinner.nps}
                       </span>
                     </div>
-                    <div className="bg-white/20 rounded-lg px-4 py-3">
-                      <span className="text-blue-300 font-semibold">
+                    <div className="bg-blue-500/80 rounded-lg px-4 py-3">
+                      <span className="text-white font-bold">
                         NRPC: {currentWinner.nrpc}
                       </span>
                     </div>
