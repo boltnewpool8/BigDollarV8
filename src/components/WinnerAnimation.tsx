@@ -101,7 +101,7 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                 transition={{ delay: 0.3 }}
                 className="text-4xl font-bold text-white mb-4"
               >
-                {prizeCategory ? `${prizeCategory.icon} ${prizeCategory.name} WINNER #{currentWinnerIndex + 1} ${prizeCategory.icon}` : `🎉 WINNER #{currentWinnerIndex + 1} 🎉`}
+                {prizeCategory ? `${prizeCategory.icon} ${prizeCategory.name} WINNER #${currentWinnerIndex + 1} ${prizeCategory.icon}` : `🎉 WINNER #${currentWinnerIndex + 1} 🎉`}
               </motion.h2>
 
               <motion.div
