@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, User, Award, Percent, Ticket } from 'lucide-react';
 import { Guide } from '../types';
+import { assignTicketsToGuides, GuideWithTickets } from '../utils/ticketSystem';
 import guidesData from '../data/guides.json';
 
 export const GuidesView: React.FC = () => {
@@ -9,17 +10,18 @@ export const GuidesView: React.FC = () => {
   const [selectedSupervisor, setSelectedSupervisor] = useState('');
 
   const guides = guidesData as Guide[];
+  const guidesWithTickets = useMemo(() => assignTicketsToGuides(guides), [guides]);
 
   const departments = useMemo(() => {
-    return Array.from(new Set(guides.map(guide => guide.department))).sort();
-  }, [guides]);
+    return Array.from(new Set(guidesWithTickets.map(guide => guide.department))).sort();
+  }, [guidesWithTickets]);
 
   const supervisors = useMemo(() => {
-    return Array.from(new Set(guides.map(guide => guide.supervisor))).sort();
-  }, [guides]);
+    return Array.from(new Set(guidesWithTickets.map(guide => guide.supervisor))).sort();
+  }, [guidesWithTickets]);
 
   const filteredGuides = useMemo(() => {
-    return guides.filter(guide => {
+    return guidesWithTickets.filter(guide => {
       const matchesSearch = guide.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            guide.supervisor.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            guide.department.toLowerCase().includes(searchTerm.toLowerCase());
@@ -28,16 +30,16 @@ export const GuidesView: React.FC = () => {
       
       return matchesSearch && matchesDepartment && matchesSupervisor;
     });
-  }, [guides, searchTerm, selectedDepartment, selectedSupervisor]);
+  }, [guidesWithTickets, searchTerm, selectedDepartment, selectedSupervisor]);
 
   const stats = useMemo(() => {
-    const totalTickets = guides.reduce((sum, guide) => sum + guide.totalTickets, 0);
-    const avgNPS = guides.reduce((sum, guide) => sum + guide.nps, 0) / guides.length;
-    const avgNRPC = guides.reduce((sum, guide) => sum + guide.nrpc, 0) / guides.length;
-    const avgRefund = guides.reduce((sum, guide) => sum + guide.refundPercent, 0) / guides.length;
+    const totalTickets = guidesWithTickets.reduce((sum, guide) => sum + guide.totalTickets, 0);
+    const avgNPS = guidesWithTickets.reduce((sum, guide) => sum + guide.nps, 0) / guidesWithTickets.length;
+    const avgNRPC = guidesWithTickets.reduce((sum, guide) => sum + guide.nrpc, 0) / guidesWithTickets.length;
+    const avgRefund = guidesWithTickets.reduce((sum, guide) => sum + guide.refundPercent, 0) / guidesWithTickets.length;
 
     return { totalTickets, avgNPS, avgNRPC, avgRefund };
-  }, [guides]);
+  }, [guidesWithTickets]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 space-y-6 p-6">
@@ -47,7 +49,7 @@ export const GuidesView: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-200 text-sm font-medium">Total Guides</p>
-              <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">{guides.length}</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">{guidesWithTickets.length}</p>
             </div>
             <User className="w-10 h-10 text-blue-300" />
           </div>
@@ -153,6 +155,9 @@ export const GuidesView: React.FC = () => {
                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                   Total Tickets
                 </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                  Ticket Range
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -209,6 +214,13 @@ export const GuidesView: React.FC = () => {
                     <div className="flex items-center">
                       <Ticket className="w-4 h-4 text-yellow-400 mr-1" />
                       <span className="text-sm font-bold text-white">{guide.totalTickets}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-xs text-blue-200">
+                      <span className="font-mono bg-white/20 px-2 py-1 rounded">
+                        #{guide.ticketRange.start}-#{guide.ticketRange.end}
+                      </span>
                     </div>
                   </td>
                 </tr>

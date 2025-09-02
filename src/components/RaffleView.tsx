@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Shuffle, Trophy, Users, Ticket, Trash2, Sparkles, Gift } from 'lucide-react';
 import { Guide, Winner, PrizeCategory } from '../types';
+import { assignTicketsToGuides, GuideWithTickets } from '../utils/ticketSystem';
 import { useWinners } from '../hooks/useWinners';
 import { PrizeSelectionModal } from './PrizeSelectionModal';
 import { PrizeDrawModal } from './PrizeDrawModal';
-import { NameScrolling } from './NameScrolling';
+import { TicketDrawAnimation } from './TicketDrawAnimation';
 import { WinnerAnimation } from './WinnerAnimation';
 import { prizeCategories } from '../data/prizeCategories';
 import confetti from 'canvas-confetti';
@@ -16,17 +17,19 @@ export const RaffleView: React.FC = () => {
   const [isPrizeDrawOpen, setIsPrizeDrawOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<PrizeCategory | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
+  const [isTicketDrawing, setIsTicketDrawing] = useState(false);
   const [showWinnerAnimation, setShowWinnerAnimation] = useState(false);
-  const [animationWinners, setAnimationWinners] = useState<Guide[]>([]);
+  const [animationWinners, setAnimationWinners] = useState<GuideWithTickets[]>([]);
+  const [drawnTickets, setDrawnTickets] = useState<number[]>([]);
 
   const { winners, addWinners, purgeWinners } = useWinners();
   const guides = guidesData as Guide[];
+  const guidesWithTickets = useMemo(() => assignTicketsToGuides(guides), [guides]);
 
   const availableGuides = useMemo(() => {
     const winnerIds = new Set(winners.map(w => w.guide_id));
-    return guides.filter(guide => !winnerIds.has(guide.id));
-  }, [guides, winners]);
+    return guidesWithTickets.filter(guide => !winnerIds.has(guide.id));
+  }, [guidesWithTickets, winners]);
 
   const handleSelectPrize = (category: PrizeCategory) => {
     setSelectedCategory(category);
@@ -41,14 +44,14 @@ export const RaffleView: React.FC = () => {
 
     setIsDrawing(true);
     setIsPrizeDrawOpen(false);
-    setIsScrolling(true);
+    setIsTicketDrawing(true);
   };
 
-  const handleScrollingComplete = async (selectedWinners: Guide[]) => {
-    setIsScrolling(false);
+  const handleTicketDrawComplete = async (selectedWinners: GuideWithTickets[], tickets: number[], isRestart?: boolean) => {
+    setIsTicketDrawing(false);
     
-    // Check if this is a restart (empty winners array)
-    if (selectedWinners.length === 0) {
+    // Check if this is a restart
+    if (isRestart || selectedWinners.length === 0) {
       // Reset the draw state
       setIsDrawing(false);
       setSelectedCategory(null);
@@ -56,6 +59,7 @@ export const RaffleView: React.FC = () => {
     }
     
     setAnimationWinners(selectedWinners);
+    setDrawnTickets(tickets);
     setShowWinnerAnimation(true);
   };
 
@@ -77,6 +81,7 @@ export const RaffleView: React.FC = () => {
       total_tickets: guide.totalTickets,
       prize_category: selectedCategory.id,
       prize_name: selectedCategory.name,
+      drawn_ticket: drawnTickets[index],
       won_at: new Date().toISOString(),
       created_at: new Date().toISOString()
     }));
@@ -248,7 +253,7 @@ export const RaffleView: React.FC = () => {
               Contest Controls
             </h3>
             <div className="space-y-2 text-sm text-blue-100">
-              <p>Total Guides in System: <span className="font-medium">{guides.length}</span></p>
+              <p>Total Guides in System: <span className="font-medium">{guidesWithTickets.length}</span></p>
               <p>Available for Draw: <span className="font-medium">{availableGuides.length}</span></p>
               <p>Total Winners Selected: <span className="font-medium">{winners.length}</span></p>
             </div>
@@ -297,10 +302,10 @@ export const RaffleView: React.FC = () => {
         availableGuides={availableGuides.length}
       />
       
-      <NameScrolling
+      <TicketDrawAnimation
         guides={availableGuides}
-        isScrolling={isScrolling}
-        onComplete={handleScrollingComplete}
+        isDrawing={isTicketDrawing}
+        onComplete={handleTicketDrawComplete}
         winnerCount={selectedCategory?.winnerCount || 1}
         prizeCategory={selectedCategory}
       />
