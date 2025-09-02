@@ -15,6 +15,7 @@ export const exportToExcel = (winners: PrizeWinner[]) => {
     const prizeCategory = prizeCategories.find(p => p.id === winner.prize_category);
     return {
       'Prize Category': prizeCategory?.name || 'Unknown',
+      'Drawn Ticket': winner.drawn_ticket ? `#${winner.drawn_ticket.toString().padStart(4, '0')}` : 'N/A',
       'Winner Name': winner.name,
       'Department': winner.department,
       'Supervisor': winner.supervisor,
@@ -33,6 +34,7 @@ export const exportToExcel = (winners: PrizeWinner[]) => {
   // Set column widths
   const colWidths = [
     { wch: 25 }, // Prize Category
+    { wch: 12 }, // Drawn Ticket
     { wch: 25 }, // Winner Name
     { wch: 15 }, // Department
     { wch: 20 }, // Supervisor
@@ -69,6 +71,7 @@ export const exportToPDF = (winners: PrizeWinner[]) => {
     const prizeCategory = prizeCategories.find(p => p.id === winner.prize_category);
     return [
       prizeCategory?.name || 'Unknown',
+      winner.drawn_ticket ? `#${winner.drawn_ticket.toString().padStart(4, '0')}` : 'N/A',
       winner.name,
       winner.department,
       winner.supervisor,
@@ -82,7 +85,7 @@ export const exportToPDF = (winners: PrizeWinner[]) => {
 
   // Add table
   doc.autoTable({
-    head: [['Prize Category', 'Winner Name', 'Department', 'Supervisor', 'NPS', 'NRPC', 'Refund %', 'Tickets', 'Won Date']],
+    head: [['Prize Category', 'Ticket', 'Winner Name', 'Department', 'Supervisor', 'NPS', 'NRPC', 'Refund %', 'Tickets', 'Won Date']],
     body: tableData,
     startY: 40,
     styles: {
@@ -99,14 +102,15 @@ export const exportToPDF = (winners: PrizeWinner[]) => {
     },
     columnStyles: {
       0: { cellWidth: 25 },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 15 },
-      3: { cellWidth: 20 },
-      4: { cellWidth: 10 },
+      1: { cellWidth: 12 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 15 },
+      4: { cellWidth: 20 },
       5: { cellWidth: 10 },
-      6: { cellWidth: 12 },
-      7: { cellWidth: 10 },
-      8: { cellWidth: 15 }
+      6: { cellWidth: 10 },
+      7: { cellWidth: 12 },
+      8: { cellWidth: 10 },
+      9: { cellWidth: 15 }
     }
   });
 

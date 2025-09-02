@@ -42,4 +42,5 @@ export interface PrizeCategory {
 export interface PrizeWinner extends Winner {
   prize_category: string;
   prize_name: string;
+  drawn_ticket?: number;
 }
