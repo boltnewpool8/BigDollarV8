@@ -33,7 +33,7 @@ export const prizeCategories: PrizeCategory[] = [
     name: '4th Prize - BOAT Sound Bars',
     description: 'Premium BOAT Sound Bar System',
     winnerCount: 8,
-    image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+    image: '/src/img/boat.jpg',
     gradient: 'from-orange-500 to-red-500',
     icon: '🔊'
   },
