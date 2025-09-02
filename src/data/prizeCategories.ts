@@ -6,7 +6,7 @@ export const prizeCategories: PrizeCategory[] = [
     name: '1st Prize - Refrigerator',
     description: 'Premium Double Door Refrigerator',
     winnerCount: 1,
-    image: '/home/project/src/img/fridge.jpg',
+    image: '/src/img/fridge.jpg',
     gradient: 'from-blue-500 to-cyan-500',
     icon: '❄️'
   },
