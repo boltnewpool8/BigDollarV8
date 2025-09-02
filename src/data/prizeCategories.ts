@@ -24,7 +24,7 @@ export const prizeCategories: PrizeCategory[] = [
     name: '3rd Prize - Washing Machine',
     description: 'Fully Automatic Washing Machine',
     winnerCount: 2,
-    image: '/src/img/fridge.jpg',
+    image: '/src/img/w.mjpg',
     gradient: 'from-green-500 to-teal-500',
     icon: '🧺'
   },
