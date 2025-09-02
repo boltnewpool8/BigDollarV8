@@ -46,6 +46,15 @@ export const RaffleView: React.FC = () => {
 
   const handleScrollingComplete = async (selectedWinners: Guide[]) => {
     setIsScrolling(false);
+    
+    // Check if this is a restart (empty winners array)
+    if (selectedWinners.length === 0) {
+      // Reset the draw state
+      setIsDrawing(false);
+      setSelectedCategory(null);
+      return;
+    }
+    
     setAnimationWinners(selectedWinners);
     setShowWinnerAnimation(true);
   };

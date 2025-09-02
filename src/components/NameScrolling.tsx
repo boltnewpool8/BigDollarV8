@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, RotateCcw } from 'lucide-react';
 import { Guide, PrizeCategory } from '../types';
 import { prizeCategories } from '../data/prizeCategories';
 
 interface NameScrollingProps {
   guides: Guide[];
   isScrolling: boolean;
-  onComplete: (winners: Guide[]) => void;
+  onComplete: (winners: Guide[], isRestart?: boolean) => void;
   winnerCount: number;
   prizeCategory?: PrizeCategory | null;
 }
@@ -18,11 +19,12 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
   winnerCount,
   prizeCategory
 }) => {
-  const [phase, setPhase] = useState<'countdown' | 'revealing' | 'complete'>('countdown');
+  const [phase, setPhase] = useState<'countdown' | 'revealing' | 'waiting' | 'complete'>('countdown');
   const [countdown, setCountdown] = useState(15);
   const [currentWinnerIndex, setCurrentWinnerIndex] = useState(0);
   const [selectedWinners, setSelectedWinners] = useState<Guide[]>([]);
   const [currentWinner, setCurrentWinner] = useState<Guide | null>(null);
+  const [isWaitingForNext, setIsWaitingForNext] = useState(false);
 
   // Get countdown duration based on prize category
   const getCountdownDuration = (category: PrizeCategory | null): number => {
@@ -66,12 +68,60 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
     setCurrentWinnerIndex(0);
     setPhase('countdown');
     setCountdown(getCountdownDuration(prizeCategory));
+    setIsWaitingForNext(false);
 
     const processNextWinner = (winnerIndex: number) => {
       if (winnerIndex >= winners.length) {
         setPhase('complete');
         setTimeout(() => {
           onComplete(winners);
+        }, 2000);
+        return;
+      }
+
+      setCurrentWinnerIndex(winnerIndex);
+      setPhase('countdown');
+      const duration = getCountdownDuration(prizeCategory);
+      setCountdown(duration);
+      setIsWaitingForNext(false);
+
+      // Countdown timer
+      let timeLeft = duration;
+      const countdownInterval = setInterval(() => {
+        timeLeft--;
+        setCountdown(timeLeft);
+        
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          setPhase('revealing');
+          setCurrentWinner(winners[winnerIndex]);
+          
+          // For multi-winner draws, wait for user input after first winner
+          if (winnerCount > 1 && winnerIndex < winners.length - 1) {
+            setTimeout(() => {
+              setPhase('waiting');
+              setIsWaitingForNext(true);
+            }, 3000);
+          } else {
+            // Single winner or last winner - auto proceed
+            setTimeout(() => {
+              processNextWinner(winnerIndex + 1);
+            }, 4000);
+          }
+        }
+      }, 1000);
+    };
+
+    processNextWinner(0);
+  }, [isScrolling, guides, onComplete, winnerCount, prizeCategory]);
+
+  const handleNext = () => {
+    setIsWaitingForNext(false);
+    const processNextWinner = (winnerIndex: number) => {
+      if (winnerIndex >= selectedWinners.length) {
+        setPhase('complete');
+        setTimeout(() => {
+          onComplete(selectedWinners);
         }, 2000);
         return;
       }
@@ -90,18 +140,30 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
         if (timeLeft <= 0) {
           clearInterval(countdownInterval);
           setPhase('revealing');
-          setCurrentWinner(winners[winnerIndex]);
+          setCurrentWinner(selectedWinners[winnerIndex]);
           
-          // Show winner for 4 seconds, then move to next
-          setTimeout(() => {
-            processNextWinner(winnerIndex + 1);
-          }, 4000);
+          // For multi-winner draws, wait for user input after each winner except the last
+          if (winnerCount > 1 && winnerIndex < selectedWinners.length - 1) {
+            setTimeout(() => {
+              setPhase('waiting');
+              setIsWaitingForNext(true);
+            }, 3000);
+          } else {
+            // Last winner - auto proceed to complete
+            setTimeout(() => {
+              processNextWinner(winnerIndex + 1);
+            }, 4000);
+          }
         }
       }, 1000);
     };
 
-    processNextWinner(0);
-  }, [isScrolling, guides, onComplete, winnerCount, prizeCategory]);
+    processNextWinner(currentWinnerIndex + 1);
+  };
+
+  const handleRestart = () => {
+    onComplete([], true); // Pass empty array and restart flag
+  };
 
   if (!isScrolling) return null;
 
@@ -173,7 +235,7 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
           </div>
         )}
 
-        {phase === 'revealing' && currentWinner && (
+        {(phase === 'revealing' || phase === 'waiting') && currentWinner && (
           <div>
             <motion.h2
               animate={{ 
@@ -240,6 +302,31 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
                 </div>
               </div>
             </motion.div>
+
+            {/* Control buttons for multi-winner draws */}
+            {phase === 'waiting' && isWaitingForNext && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8 flex justify-center gap-4"
+              >
+                <button
+                  onClick={handleRestart}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full font-semibold hover:from-red-600 hover:to-pink-700 focus:ring-4 focus:ring-red-500/50 transition-all duration-300 shadow-lg transform hover:scale-105"
+                >
+                  <RotateCcw className="w-5 h-5 mr-2" />
+                  Restart Draw
+                </button>
+                
+                <button
+                  onClick={handleNext}
+                  className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full font-bold text-lg hover:from-green-600 hover:to-blue-600 focus:ring-4 focus:ring-green-500/50 transition-all duration-300 shadow-lg transform hover:scale-105"
+                >
+                  Next Winner
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </button>
+              </motion.div>
+            )}
           </div>
         )}
 
@@ -292,6 +379,7 @@ export const NameScrolling: React.FC<NameScrollingProps> = ({
         >
           {phase === 'countdown' && '✨ The magic is building... ✨'}
           {phase === 'revealing' && '🎉 Congratulations! 🎉'}
+          {phase === 'waiting' && '⏳ Ready for the next winner? ⏳'}
           {phase === 'complete' && '🎉 All winners selected! 🎉'}
         </motion.div>
       </div>

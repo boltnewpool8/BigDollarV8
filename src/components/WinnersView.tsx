@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { Trophy, Calendar, User, Award, Percent, Ticket, TrendingUp, Sparkles, Trash2, Gift } from 'lucide-react';
+import { Trophy, Calendar, User, Award, Percent, Ticket, TrendingUp, Sparkles, Trash2, Gift, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useWinners } from '../hooks/useWinners';
 import { prizeCategories } from '../data/prizeCategories';
+import { exportToExcel, exportToPDF } from '../utils/exportUtils';
 
 export const WinnersView: React.FC = () => {
   const { winners, loading, purgeWinners } = useWinners();
@@ -26,6 +27,22 @@ export const WinnersView: React.FC = () => {
         alert('Failed to purge winners. Please try again.');
       }
     }
+  };
+
+  const handleExportExcel = () => {
+    if (winners.length === 0) {
+      alert('No winners to export!');
+      return;
+    }
+    exportToExcel(winners);
+  };
+
+  const handleExportPDF = () => {
+    if (winners.length === 0) {
+      alert('No winners to export!');
+      return;
+    }
+    exportToPDF(winners);
   };
 
   const stats = useMemo(() => {
@@ -77,13 +94,31 @@ export const WinnersView: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             {winners.length > 0 && (
-              <button
-                onClick={handlePurgeWinners}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full font-semibold hover:from-red-600 hover:to-pink-700 focus:ring-4 focus:ring-red-500/50 transition-all duration-300 shadow-lg transform hover:scale-105"
-              >
-                <Trash2 className="w-5 h-5 mr-2" />
-                Purge All Winners
-              </button>
+              <>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleExportExcel}
+                    className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full font-semibold hover:from-green-600 hover:to-emerald-700 focus:ring-4 focus:ring-green-500/50 transition-all duration-300 shadow-lg transform hover:scale-105"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    Excel
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full font-semibold hover:from-blue-600 hover:to-indigo-700 focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 shadow-lg transform hover:scale-105"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    PDF
+                  </button>
+                </div>
+                <button
+                  onClick={handlePurgeWinners}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full font-semibold hover:from-red-600 hover:to-pink-700 focus:ring-4 focus:ring-red-500/50 transition-all duration-300 shadow-lg transform hover:scale-105"
+                >
+                  <Trash2 className="w-5 h-5 mr-2" />
+                  Purge All Winners
+                </button>
+              </>
             )}
             <motion.div
               animate={{ 
