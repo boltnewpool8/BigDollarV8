@@ -6,7 +6,7 @@ export const prizeCategories: PrizeCategory[] = [
     name: '1st Prize - Refrigerator',
     description: 'Premium Double Door Refrigerator',
     winnerCount: 1,
-    image: 'https://images.pexels.com/photos/2343468/pexels-photo-2343468.jpeg?auto=compress&cs=tinysrgb&w=400',
+    image: 'https://www.istockphoto.com/photo/blue-refrigerator-with-stainless-steel-handles-in-retro-style-in-kitchen-gm1901874263-554310338',
     gradient: 'from-blue-500 to-cyan-500',
     icon: '❄️'
   },
