@@ -42,7 +42,7 @@ export const prizeCategories: PrizeCategory[] = [
     name: '5th Prize - Iron Box',
     description: 'Steam Iron with Advanced Features',
     winnerCount: 15,
-    image: 'https://images.pexels.com/photos/4239013/pexels-photo-4239013.jpeg?auto=compress&cs=tinysrgb&w=400',
+    image: '/src/img/iron.jpg',
     gradient: 'from-yellow-500 to-orange-500',
     icon: '👔'
   }
